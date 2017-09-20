@@ -48,8 +48,8 @@ for patch_info in soup.find_all("div", attrs={"class": "patch-notes-body"}):
     content_number = 0
     for contents in patch_info.contents:
         content_number += 1
-        if content_number < 2:
-            # Skip the first two children since they're just the <h1> for the title and a \n
+        if content_number <= 2:
+            # Skip the first few children since they're just the <h1> for the title and whitespace
             continue
         description += str(contents)
 
