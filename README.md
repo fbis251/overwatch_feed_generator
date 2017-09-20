@@ -2,7 +2,7 @@
 
 This project uses [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/) to scrape the [Overwatch PC patch notes page](https://playoverwatch.com/en-us/game/patch-notes/pc/) to generate an Atom feed using [gorilla/feeds](https://github.com/gorilla/feeds)
 
-An example systemd service that runs the feed generator once per hour is included.
+An example systemd service that runs the feed generator once per hour is included. If you're going to use the service make sure you update the paths in the `ExecStart` and `WorkingDirectory` variables to where you installed this project
 
 ## Installation
 

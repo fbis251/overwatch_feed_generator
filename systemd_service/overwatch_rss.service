@@ -3,5 +3,5 @@ Description=Updates Overwatch RSS Feed
 
 [Service]
 Type=oneshot
-ExecStart=$HOME/go/src/github.com/fbis251/overwatch_feed_generator/get.sh
-WorkingDirectory=$HOME/go/src/github.com/fbis251/overwatch_feed_generator
+ExecStart=/home/your_user/go/src/github.com/fbis251/overwatch_feed_generator/get.sh
+WorkingDirectory=/home/your_user/go/src/github.com/fbis251/overwatch_feed_generator
