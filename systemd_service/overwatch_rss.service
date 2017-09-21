@@ -1,5 +1,5 @@
 [Unit]
-Description=Updates Overwatch RSS Feed
+Description=Update Overwatch RSS Feed
 
 [Service]
 Type=oneshot
