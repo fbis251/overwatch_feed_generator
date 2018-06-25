@@ -1,49 +1,97 @@
 #!/usr/bin/env python
-from bs4 import BeautifulSoup
 import json
+import sys
 
+from bs4 import BeautifulSoup
+
+# Constants
 DEFAULT_AUTHOR = "Overwatch PC Team"
 DEFAULT_URL = "https://playoverwatch.com/en-us/game/patch-notes/pc/"
 
-class NewsPost:
-    title = ""
-    author = ""
-    date = ""
-    url = ""
-    description = ""
+# Error Constants
+EXIT_ERROR_PATCH_PARSE = 'Error while parsing patch versions'
+EXIT_ERROR_PATCH_POST_NOT_FOUND = 'Error while finding post contents by ID'
 
-    def __init__(self, title, author, url, description):
+
+# Provides information about patches including the version and the ID of the post element that
+# contains the patch details
+class Patch:
+    title = ''
+    element_id = ''
+
+    def __init__(self, title, element_id):
         self.title = title
-        self.author = author
-        self.url = url
-        self.description = description
+        self.element_id = element_id
 
-        # Dates are separated from titles via an emdash
-        split = title.split(" \u2013 ")
-        if len(split) == 2:
-            self.date = split[len(split) - 1]
-        else:
-            # emdash wasn't used in title split, try to use regular hyphen
-            split = title.split(" - ")
-            if len(split) == 2:
-                self.date = split[len(split) - 1]
 
+# Begin parsing the patches page
 soup = BeautifulSoup(open('posts.html'), 'html.parser')
+
+# Remove some elements that will add unnecessary whitespace in the feed
+for div in soup.select('div.HeroHeader'):
+    div.decompose()
+for div in soup.select('h5.IconHeading'):
+    div.decompose()
+
+patches = []
+# Get the list of patch versions and post ID's from the sidebar
+for patch in soup.find_all("li", class_="PatchNotesSideNav-listItem"):
+    title = ''
+    title_element = patch.select_one('h3')
+    if title_element is not None:
+        title = title_element.get_text(strip=True)
+
+    version_element_id = ''
+    version_element = patch.select_one('a')
+    if version_element is not None:
+        version_element_id = version_element.get('href')
+        if version_element_id.startswith('#'):
+            version_element_id = version_element_id[1:]
+
+    if not (title == "" and version_element_id == ""):
+        patches.append(Patch(title=title, element_id=version_element_id))
+    else:
+        sys.exit(EXIT_ERROR_PATCH_PARSE)
+
 posts = []
-for patch_info in soup.find_all("div", attrs={"class": "patch-notes-body"}):
-    title = ""
+for patch in patches:
+    patch_id = patch.element_id
+    patch_info = soup.find('div', {'id': patch_id})
+    if patch_info is None:
+        sys.exit(EXIT_ERROR_PATCH_POST_NOT_FOUND)
+    title = patch.title
     author = DEFAULT_AUTHOR
-    description = ""
+    date = ''
+    description = ''
     url = DEFAULT_URL
 
-    patch_id = patch_info.get('id')
     if patch_id is not None:
         # Append patch ID anchor to the base URL
         url = url + '#' + patch_id
 
-    titleList = patch_info.select('h1')
-    if len(titleList) > 0:
-        title = titleList[0].get_text(strip=True)
+    # Try to get the date for a post that contains it
+    header_list = patch_info.select('h1')
+    post_title = ''
+    if len(header_list) > 0:
+        post_title = header_list[0].get_text(strip=True)
+        # Dates are usually separated from titles via an emdash
+        split = post_title.split(" \u2013 ")
+        if len(split) == 2:
+            date = split[len(split) - 1]
+        else:
+            # emdash wasn't used in title split, try to use regular hyphen
+            split = post_title.split(" - ")
+            if len(split) == 2:
+                date = split[len(split) - 1]
+
+    # Date is still blank, try to determine it from the post title
+    if date == '':
+        header_list = patch_info.select('h2.HeadingBanner-header')
+        post_header_date = header_list[0].get_text(strip=True)
+        if post_header_date != "":
+            # MAKE SURE THE HEADER DATE IS NOT IN ALL CAPS FOR CONSISTENCY WITH OTHER DATES
+            post_header_date = post_header_date.capitalize()
+        date = post_header_date
 
     content_number = 0
     for contents in patch_info.contents:
@@ -53,13 +101,12 @@ for patch_info in soup.find_all("div", attrs={"class": "patch-notes-body"}):
             continue
         description += str(contents)
 
-    post = NewsPost(title, author, url, description)
-    json_entry = {}
-    json_entry['title'] = post.title
-    json_entry['author'] = post.author
-    json_entry['date'] = post.date
-    json_entry['url'] = post.url
-    json_entry['description'] = post.description
-    posts.append(json_entry)
+    posts.append({
+        'title': title,
+        'author': author,
+        'date': date,
+        'url': url,
+        'description': description
+    })
 
-print(json.dumps(posts))
+print(json.dumps(posts, indent=True))

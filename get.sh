@@ -2,7 +2,7 @@
 set -eu
 BASE_PATH="$HOME/go/src/github.com/fbis251/overwatch_feed_generator"
 RSS_REPO_PATH="$HOME/src/overwatch_news_feed"
-POSTS_URL="https://playoverwatch.com/en-us/game/patch-notes/pc/"
+POSTS_URL="https://playoverwatch.com/en-us/news/patch-notes/pc"
 POSTS_HTML="$BASE_PATH/posts.html"
 JSON_FILE="$BASE_PATH/posts.json"
 ATOM_FILE="$RSS_REPO_PATH/pc.atom"
