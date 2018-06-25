@@ -76,11 +76,6 @@ func buildFeed(posts *NewsPosts) *feeds.Feed {
 			Created:     default_timestamp,
 		}
 
-		if !isLatestPostTimeWritten {
-			writeLatestPostFile(item.Title)
-			isLatestPostTimeWritten = true
-		}
-
 		if post.Date != "" {
 			// valid date was parsed
 			loc, err := time.LoadLocation(timeZoneLocation)
@@ -91,6 +86,12 @@ func buildFeed(posts *NewsPosts) *feeds.Feed {
 				}
 			}
 		}
+
+		if !isLatestPostTimeWritten {
+			writeLatestPostFile(string(item.Title) + " - " + string(post.Date))
+			isLatestPostTimeWritten = true
+		}
+
 		feed.Items = append(feed.Items, item)
 	}
 	return feed
@@ -104,8 +105,8 @@ func writeAtomFile(feed *feeds.Feed) error {
 	return writeStringToFile(atom, *atomFile)
 }
 
-func writeLatestPostFile(title string) error {
-	return writeStringToFile(title, *latestPostFile)
+func writeLatestPostFile(contents string) error {
+	return writeStringToFile(contents, *latestPostFile)
 }
 
 func writeStringToFile(str string, filename string) error {
