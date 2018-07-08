@@ -28,10 +28,10 @@ class Patch:
 soup = BeautifulSoup(open('posts.html'), 'html.parser')
 
 # Remove some elements that will add unnecessary whitespace in the feed
-for div in soup.select('div.HeroHeader'):
-    div.decompose()
-for div in soup.select('h5.IconHeading'):
-    div.decompose()
+for element in soup.select('svg.IconHeading-icon'):
+    element.decompose()
+for element in soup.select('img.HeroHeader-image-mobile'):
+    element.decompose()
 
 patches = []
 # Get the list of patch versions and post ID's from the sidebar
