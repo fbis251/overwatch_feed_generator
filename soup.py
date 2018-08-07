@@ -93,13 +93,8 @@ for patch in patches:
             post_header_date = post_header_date.capitalize()
         date = post_header_date
 
-    content_number = 0
-    for contents in patch_info.contents:
-        content_number += 1
-        if content_number <= 2:
-            # Skip the first few children since they're just the <h1> for the title and whitespace
-            continue
-        description += str(contents)
+    # Get the patch info DIV contents (innerHTML) as the post body
+    description = patch_info.decode_contents()
 
     posts.append({
         'title': title,
