@@ -1,0 +1,8 @@
+*
+!.gitignore
+!systemd_service/
+!systemd_service/*
+!README.md
+!get.sh
+!main.go
+!soup.py
