@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/gorilla/feeds"
 	"io/ioutil"
 	"log"
-	"time"
-	"bufio"
 	"os"
-	"flag"
+	"time"
 )
 
 type NewsPosts []struct {
@@ -65,7 +65,7 @@ func buildFeed(posts *NewsPosts) *feeds.Feed {
 	}
 
 	isLatestPostTimeWritten := false
-	layout := "January 2, 2006"
+	layout := "1/2/2006"
 	default_timestamp := time.Unix(0, 0) // Use unix time 0 by default
 	for _, post := range *posts {
 		item := &feeds.Item{
@@ -79,12 +79,14 @@ func buildFeed(posts *NewsPosts) *feeds.Feed {
 		if post.Date != "" {
 			// valid date was parsed
 			loc, err := time.LoadLocation(timeZoneLocation)
-			if err == nil {
-				t, err := time.ParseInLocation(layout, post.Date, loc)
-				if err == nil {
-					item.Created = t
-				}
+			if err != nil {
+				log.Fatal(err)
 			}
+			t, err := time.ParseInLocation(layout, post.Date, loc)
+			if err != nil {
+				log.Fatal(err)
+			}
+			item.Created = t
 		}
 
 		if !isLatestPostTimeWritten {
