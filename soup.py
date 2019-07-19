@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 # Constants
 DEBUG = False
 DEFAULT_AUTHOR = "Overwatch PC Team"
-DEFAULT_URL = "https://playoverwatch.com/en-us/game/patch-notes/pc/"
+DEFAULT_URL = "https://playoverwatch.com/en-us/news/patch-notes/pc/"
 
 # Error Constants
 EXIT_ERROR_PATCH_PARSE = 'Error while parsing patch versions'
